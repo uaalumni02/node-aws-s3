@@ -14,9 +14,8 @@ const s3 = new aws.S3({
 });
 
 router.post("/", upload.single("file"), function (req, res, next) {
-  console.log(req.file)
   if (req.file) {
-    uploadFile(req.file.path); //add argument for filename
+    uploadFile(req.file.path, req.file.originalname);
   }
 });
 
@@ -24,11 +23,11 @@ const randomString = (size = 5) => {
   return crypto.randomBytes(size).toString("base64").slice(0, size);
 };
 
-const uploadFile = (fileName) => {
+const uploadFile = (fileName, originalName) => {
   const fileContent = fs.readFileSync(fileName);
   const params = {
     Bucket: process.env.BUCKETNAME,
-    Key: randomString(), // insert random key name and not hardcode; use crypto to generate random strings; append to original filename; its in req.file
+    Key: randomString().concat(originalName),
     Body: fileContent,
   };
   s3.upload(params, function (err, data) {
