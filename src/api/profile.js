@@ -27,7 +27,7 @@ const uploadFile = (fileName, originalName) => {
   const fileContent = fs.readFileSync(fileName);
   const params = {
     Bucket: process.env.BUCKETNAME,
-    Key: randomString().concat(originalName),
+    Key: randomString().concat('_', originalName),
     Body: fileContent,
   };
   s3.upload(params, function (err, data) {
