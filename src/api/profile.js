@@ -4,7 +4,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-// var upload = multer({ dest: "uploads/"});
 
 const router = express.Router();
 
@@ -22,11 +21,10 @@ const storage = multer.diskStorage({
   }
 });
 
-var upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
 
 
 router.post("/", upload.single("file"), function (req, res, next) {
-  console.log(req.file.filename);
   if (req.file) {
     uploadFile(req.file.path, req.file.originalname, (uploadJSONResponse) => {
       return res.status(201).json(uploadJSONResponse);
@@ -46,7 +44,6 @@ const uploadFile = (fileName, originalName, cb) => {
     Body: fileContent,
   };
   S3.upload(params, async (err, data) => {
-    // console.log(data);
     if (err) {
       throw err;
     }
@@ -62,11 +59,14 @@ const uploadFile = (fileName, originalName, cb) => {
     });
   });
 };
-//partially finished; on postmane changed to 'files' plural
 router.post("/multiple", upload.array("files", 12), function (req, res, next) {
-  // console.log(req)
-  // req.files is array of `photos` files
-  // req.body will contain the text fields, if there were any
+  if (req.files) {
+    for(var i = 0; i < req.files.length; i++) {
+    uploadFile(req.files[i].path, req.files[i].originalname, (uploadJSONResponse) => {
+      return res.status(201).json(uploadJSONResponse);
+    });
+  }
+  }
 });
 
 // Display image in browser instead of downloading
