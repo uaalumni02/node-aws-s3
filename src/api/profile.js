@@ -42,6 +42,8 @@ const uploadFile = (fileName, originalName, cb) => {
     Bucket: process.env.BUCKETNAME,
     Key: randomString().concat("_", originalName),
     Body: fileContent,
+    //added content type to prevent download
+    ContentType: 'image/jpeg',
   };
   S3.upload(params, async (err, data) => {
     if (err) {
@@ -69,5 +71,4 @@ router.post("/multiple", upload.array("files", 12), function (req, res, next) {
   }
 });
 
-// Display image in browser instead of downloading
 export default router;
