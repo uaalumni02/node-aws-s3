@@ -17,15 +17,19 @@ const storage = multer.diskStorage({
       callback(null, './uploads/');
   },
   filename: function (request, file, callback) {
-      callback(null, file.originalname + '-' + Date.now())
+    console.log(file)
+      // generate the filename, + the crypto stuff  
+      callback(null, file.originalname + '_' + Date.now())
   }
 });
 
 const upload = multer({ storage: storage });
 
+let contentData = ""
 
 router.post("/", upload.single("file"), function (req, res, next) {
   if (req.file) {
+    contentData = req.file.mimetype
     uploadFile(req.file.path, req.file.originalname, (uploadJSONResponse) => {
       return res.status(201).json(uploadJSONResponse);
     });
@@ -42,8 +46,9 @@ const uploadFile = (fileName, originalName, cb) => {
     Bucket: process.env.BUCKETNAME,
     Key: randomString().concat("_", originalName),
     Body: fileContent,
-    //added content type to prevent download
-    ContentType: 'image/jpeg',
+    ContentType: contentData,
+    //random string is being appended to extension 
+    //file name local does not match what is in console
   };
   S3.upload(params, async (err, data) => {
     if (err) {
