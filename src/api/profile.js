@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
     callback(null, "./uploads/");
   },
   filename: function (request, file, callback) {
-    callback(null, randomString().concat("_", file.originalname));
+    callback(null, randomString().concat("_", file.originalname.toLowerCase()));
   },
 });
 
@@ -36,9 +36,13 @@ let contentData = "";
 router.post("/", upload.single("file"), function (req, res, next) {
   if (req.file) {
     contentData = req.file.mimetype;
-    uploadFile(req.file.path, req.file.originalname, (uploadJSONResponse) => {
-      return res.status(201).json(uploadJSONResponse);
-    });
+    uploadFile(
+      req.file.path,
+      req.file.originalname.toLowerCase(),
+      (uploadJSONResponse) => {
+        return res.status(201).json(uploadJSONResponse);
+      }
+    );
   }
 });
 
